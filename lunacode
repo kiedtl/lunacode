@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# lunacode - A lightweight Lunacode compiler
+
+execute() {
+    case $1 in
+        +) ;;
+        -) ;;
+        <) ;;
+        >) ;;
+        [) ;;
+        ]) ;;
+        *) ;; 
+    esac
+}
+
+main() {
+    $file=$1
+    $text=$(cat $file)
+    for (( i=0; i<${#text}; i++ )); do
+        execute "${text:$i:1}"
+    done
+}
+
+main "$@"
