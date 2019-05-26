@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+#
+# lunacode - A lightweight Lunacode compiler
+# I had plenty of help from this awesome gist:
+# https://gist.github.com/tdeck/58bd5c1f86a27b212811
+
+#############
+# Constants #
+#############
+CELLS=500
+CTEXT="#include <stdio.h>
+
+int main(void) {
+    char array[1000000] = {0};
+    char *ptr=array;"
+
+###########
+# Globals #
+###########
+# The buffer holds the cells that form the program's working memory
+buffer=()
+# The stack holds the start pointer for each loop 
+stack=()
+# The address pointer, into the cell buffer
+ap=0
+# spaces for C indentation
+spaces=1
+
+for i in {1..$CELLS}; do
+    buffer+=(0)
+done
+
+code=$(cat $1)
+
+spaces() {
+    for ((ctr = 0; ctr < ${spaces}; ctr++ )); do
+        echo -n "    "
+    done
+}
+
+###############
+# Interpreter #
+###############
+translate() {
+    op=$1
+    case "$op" in
+        '[') 
+            spaces
+            echo "while (*ptr) {"
+            let spaces++
+            ;;
+        ']')
+            let spaces--
+            spaces 
+            echo "}" 
+            ;;
+
+        '>') spaces; echo "++ptr;"  ;;
+        '<') spaces; echo "--ptr;"  ;;
+
+        '+') spaces; echo "++*ptr;"  ;;
+        '-') spaces; echo "--*ptr;"  ;;
+
+        '.') spaces; echo "putchar(*ptr);"  ;;
+        ',') spaces; echo "*ptr = getchar();"  ;;
+        '*') spaces; echo "while (*ptr) { --*ptr; }"  ;;
+        '%') spaces; echo "return 0;"  ;;
+    esac
+}
+
+echo "${CTEXT}" 
+
+for ((ip = 0; ip < ${#code}; ip++ )); do # ip is our instruction pointer
+    op=${code:$ip:1}
+    translate $op
+done
+
+echo "}"
