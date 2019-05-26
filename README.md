@@ -5,6 +5,7 @@ An extended version of Brainfsck.
 #### New commands
 - `%`: similar to `exit()` (in Python) or `return 0` in C. Ends the program.
 - `*`: returns the memory cell to zero, instead of typing `[-]` every time.
+- `&`: print value of cell to `/dev/stderr` (instead of `stdout`).
 
 ### FAQ
 - **why is this written in shell?**
