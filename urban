@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# lunacode - A lightweight Lunacode compiler
+# urban - A lightweight Urban compiler
 # I had plenty of help from this awesome gist:
 # https://gist.github.com/tdeck/58bd5c1f86a27b212811
 
