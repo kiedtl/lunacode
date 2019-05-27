@@ -65,8 +65,33 @@ execute() {
             fi
             ;;
 
+        '{') 
+            if [[ ${buffer[$ap]} != 0 ]]; then
+                depth=1
+                while [[ $depth > 0 ]]; do
+                    ((ip++))
+                    op=${code:$ip:1}
+                    if [[ "$op" == '[' ]]; then
+                        ((depth++))
+                    elif [[ "$op" == ']' ]]; then
+                        ((depth--))
+                    fi
+                done
+            else
+                stack+=($ip) 
+            fi
+            ;;
+        '}') 
+            if [[ ${buffer[$ap]} == 0 ]]; then
+                ((ip = stack[${#stack[@]}-1]))
+            else
+                unset stack[${#stack[@]}-1]
+            fi
+            ;;
+
         '>') ((ap=(ap+1) % CELLS)) ;;
         '<') ((ap=(ap==0) ? CELLS-1 : ap-1)) ;;
+        '^') ((ap=0)) ;;
 
         '+') ((buffer[ap]=(buffer[ap]+1) % 256)) ;;
         '-') ((buffer[ap]=(buffer[ap]==0) ? 255 : buffer[ap]-1)) ;;
@@ -75,12 +100,16 @@ execute() {
         '&') printf "\x$(printf %x ${buffer[$ap]})" > /dev/stderr ;;
         ',') buffer[$ap]=$(printf "%d" "'$(read -n 1)") ;;
         '*') buffer[$ap]=0 ;;
+
+        '$') echo "" ;;
         '%') exit ;;
         '#') debug ;;
     esac
 }
 
 for ((ip = 0; ip < ${#code}; ip++ )); do
+    ip2=$((ip+1))
     op=${code:$ip:1}
-    execute $op
+    op2=${code:$ip2:1}
+    execute $op $op2
 done
