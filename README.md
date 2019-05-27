@@ -1,6 +1,10 @@
 # lunacode
 An extended version of Brainfsck.
 
+### Spec
+- `EOF` is a 0
+- a newline is a linefeed (LF).
+
 ### Improvements
 #### New commands
 - `%`: similar to `exit()` (in Python) or `return 0` in C. Ends the program.
