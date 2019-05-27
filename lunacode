@@ -25,6 +25,16 @@ done
 
 code=$(cat $1)
 
+debug() {
+    echo -e "\n\n=============== DEBUG =============="
+    echo -e "\ncid\t\tval\t\tchar"
+    echo -e "---\t\t---\t\t----\n"
+    for ((c = 0; c < ${#buffer[@]}; c++ )); do
+        hex=$(printf %x ${buffer[$c]})
+        echo -e "[${c}]\t\t${hex}\t\t\x${hex}"
+    done
+}
+
 ###############
 # Interpreter #
 ###############
@@ -66,10 +76,11 @@ execute() {
         ',') buffer[$ap]=$(printf "%d" "'$(read -n 1)") ;;
         '*') buffer[$ap]=0 ;;
         '%') exit ;;
+        '#') debug ;;
     esac
 }
 
-for ((ip = 0; ip < ${#code}; ip++ )); do # ip is our instruction pointer
+for ((ip = 0; ip < ${#code}; ip++ )); do
     op=${code:$ip:1}
     execute $op
 done

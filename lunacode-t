@@ -62,6 +62,7 @@ translate() {
         '-') spaces; echo "--*ptr;"  ;;
 
         '.') spaces; echo "putchar(*ptr);"  ;;
+        '&') spaces; echo "fprintf(stderr, \"%c\", *ptr);" ;;
         ',') spaces; echo "*ptr = getchar();"  ;;
         '*') spaces; echo "while (*ptr) { --*ptr; }"  ;;
         '%') spaces; echo "return 0;"  ;;
