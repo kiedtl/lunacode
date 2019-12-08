@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 
 void usage ( void );
+void indent ( int *i, char c );
 void print_command ( int count, char i );
 
 int
@@ -49,56 +50,58 @@ main ( int argc, char *argv[]  )
 	fread(buffer, sizeof(buffer), flen, file);
 	fclose(file);
 
-	fprintf(stdout, "#include <stdio.h>\nint \nmain( void )\n{\n");
-	fprintf(stdout, "char buf[30000] = {0};\n");
-	fprintf(stdout, "char *p = buf;\n");
+	fprintf(stdout, "#include <stdio.h>\n#include <stdlib.h>\nint \nmain( void )\n{\n");
+	fprintf(stdout, "    char buf[30000] = {0};\n");
+	fprintf(stdout, "    char *p = buf;\n");
 
 	// iter over buffer, reading it into an array of Instructions
 	// alloc 1 instructions, realloc as needed
 	int ctr = 0;
 	int i = 0;
-	for (; buffer[i] != 0; i++)
+	int indentation = 1;
+	int buflen = strlen(buffer);
+	for (; i < buflen; i++)
 	{
 		int ins_ctr = 1;
-		char orig = buffer[i];
 
 		// comments
 		if (buffer[i] == ';')
 		{
-			i--;
-			if (buffer[i] != '\\') // escape
+			--i;
+			if (buffer[i] != '\\') // escape for comments...
 			{
-				i++;
-				while (buffer[i] != '\n') {
-					i++;
-					orig = buffer[i];
+				++i;
+				while (buffer[i] != '\n')
+				{
+					++i;
 				}
+				--i;
 				continue;
 			}
-			i++;
+			++i;
 		}
 
 		// compress multiple instructions into one
 		if (buffer[i + 1] == buffer[i])
 		{
-			while (buffer[i] != orig)
+			int origctr = i;
+			while (buffer[i] == buffer[origctr])
 			{
-				fprintf(stderr, "found dup instruction %c\n", buffer[i]);
-
-				i += 1;
-				ins_ctr += 1;
+				++i;
+				++ins_ctr;
 			}
+			--i;
 		}
 
-		fprintf(stderr, "found command '%c', of count %i\n", buffer[i], ins_ctr);
+		// emit c code
+		indent(&indentation, buffer[i]);
 		print_command(ins_ctr, buffer[i]);
-		continue;
 	}
 
-	fprintf(stdout, "}\n");
+	fprintf(stdout, "\n}\n");
 
 	// cleanup
-	//if (buffer) free(buffer);
+	if (buffer) free(buffer);
 	free(path);
 }
 
@@ -109,6 +112,12 @@ usage ( void )
 	exit(1);
 }
 
+void indent ( int *i, char c )
+{
+	if (c == ']') --*i;
+	for (int c = 0; c < *i; c++) fprintf(stdout, "    ");
+	if (c == '[') ++*i;
+}
 
 void
 print_command ( int count, char i )
@@ -148,8 +157,7 @@ print_command ( int count, char i )
 		case '*':
 			fprintf(stdout, "*p = 0;\n");
 			break;
-		case ';':
-			break;
+		case ';': break;
 		case '%':
 			fprintf(stdout, "exit((int)*p);\n");
 			break;
