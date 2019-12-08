@@ -9,30 +9,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define MV_B	0	// ^
-#define MV_R	1 	// >
-#define	MV_L	2	// <
-#define	LOOP_S	3	// [
-#define	LOOP_E	4	// ]
-#define	INC	5	// +
-#define	DEC	6	// -
-#define	PUTOUT	7	// .
-#define	PUTERR	8	// &
-#define	READ	9	// ,
-#define	NILIFY	10	// *
-#define	COMMENT 11	// ;
-#define	BF_EXIT	12	// %
-
-typedef struct Instruction
-{
-	int command_t;
-	unsigned int count;
-} Instruction;
-
 void usage ( void );
-void print_indent ( int no );
-void print_command ( int *ident, Instruction i );
-int  get_command_t ( char instruction );
+void print_command ( int count, char i );
 
 int
 main ( int argc, char *argv[]  )
@@ -68,64 +46,59 @@ main ( int argc, char *argv[]  )
 	fseek(file, 0, SEEK_SET);
 
 	buffer = (char*) malloc(sizeof(char) * flen);
-	if (buffer)
-	{
-		fread(buffer, 1, flen, file);
-	}
+	fread(buffer, sizeof(buffer), flen, file);
 	fclose(file);
+
+	fprintf(stdout, "#include <stdio.h>\nint \nmain( void )\n{\n");
+	fprintf(stdout, "char buf[30000] = {0};\n");
+	fprintf(stdout, "char *p = buf;\n");
 
 	// iter over buffer, reading it into an array of Instructions
 	// alloc 1 instructions, realloc as needed
-	Instruction *instructions = (Instruction*) malloc(sizeof(Instruction) * 10000);
 	int ctr = 0;
-	while (*buffer)
+	int i = 0;
+	for (; buffer[i] != 0; i++)
 	{
-		int ins_ctr = 0;
-		char orig, current = *buffer;
+		int ins_ctr = 1;
+		char orig = buffer[i];
 
 		// comments
-		if (current == ';')
+		if (buffer[i] == ';')
 		{
-			*buffer--;
-			if (*buffer != '\\') // escape
+			i--;
+			if (buffer[i] != '\\') // escape
 			{
-				*buffer++;
-				while (current != '\n') {
-					*buffer++;
-					orig, current = *buffer;
+				i++;
+				while (buffer[i] != '\n') {
+					i++;
+					orig = buffer[i];
 				}
 				continue;
 			}
+			i++;
 		}
 
-		while (*buffer && current != orig)
+		// compress multiple instructions into one
+		if (buffer[i + 1] == buffer[i])
 		{
-			*buffer++;
-			current = *buffer;
-			ins_ctr += 1;
+			while (buffer[i] != orig)
+			{
+				fprintf(stderr, "found dup instruction %c\n", buffer[i]);
+
+				i += 1;
+				ins_ctr += 1;
+			}
 		}
 
-		// append to instructions
-		realloc(instructions, (sizeof(*instructions) / sizeof(Instruction) + 1));
-		instructions[ctr].command_t = get_command_t(*buffer);
-		instructions[ctr].count = ins_ctr;
-
-		*buffer++;
+		fprintf(stderr, "found command '%c', of count %i\n", buffer[i], ins_ctr);
+		print_command(ins_ctr, buffer[i]);
+		continue;
 	}
 
-	// emit C code
-	int inden = 1;
-	fprintf(stdout, "#include <stdio.h>\nint \nmain( void )\n{\n");
-	print_indent(inden);
-	fprintf(stdout, "char buf[30000] = {0};\n");
-	print_indent(inden);
-	fprintf(stdout, "char *p = buf;\n");
-	for (int c = 0; c < (sizeof(*instructions) / sizeof(Instruction) + 1); c++)
-		print_command(&inden, instructions[c]);
+	fprintf(stdout, "}\n");
 
 	// cleanup
-	free(instructions);
-	//free(buffer);
+	//if (buffer) free(buffer);
 	free(path);
 }
 
@@ -136,95 +109,50 @@ usage ( void )
 	exit(1);
 }
 
-void
-print_indent ( int no )
-{
-	for (int i = 0; i < no; i++)
-	{
-		fprintf(stdout, "    ");
-	}
-}
 
 void
-print_command ( int *ident, Instruction i )
+print_command ( int count, char i )
 {
-	switch (i.command_t)
+	switch (i)
 	{
-		case MV_B:
-			print_indent(*ident);
+		case '^':
 			fprintf(stdout, "p = 0;\n");
 			break;
-		case MV_R:
-			print_indent(*ident);
-			fprintf(stdout, "p += %i;\n", i.count);
+		case '>':
+			fprintf(stdout, "p += %i;\n", count);
 			break;
-		case MV_L:
-			print_indent(*ident);
-			fprintf(stdout, "p -= %i;\n", i.count);
+		case '<':
+			fprintf(stdout, "p -= %i;\n", count);
 			break;
-		case LOOP_S:
-			print_indent(*ident);
+		case '[':
 			fprintf(stdout, "while (*p) {\n");
-			ident += 1;
 			break;
-		case LOOP_E:
-			ident -=1;
-			print_indent(*ident);
+		case ']':
 			fprintf(stdout, "}\n");
 			break;
-		case INC:
-			print_indent(*ident);
-			fprintf(stdout, "*p += %i;\n", i.count);
+		case '+':
+			fprintf(stdout, "*p += %i;\n", count);
 			break;
-		case DEC:
-			print_indent(*ident);
-			fprintf(stdout, "*p += %i;\n,", i.count);
+		case '-':
+			fprintf(stdout, "*p -= %i;\n", count);
 			break;
-		case PUTOUT:
-			print_indent(*ident);
+		case '.':
 			fprintf(stdout, "putchar(*p);\n");
 			break;
-		case PUTERR:
-			print_indent(*ident);
+		case '&':
 			fprintf(stdout, "fprintf(stderr, \"%c\", *p);\n");
 			break;
-		case READ:
-			print_indent(*ident);
+		case ',':
 			fprintf(stdout, "*p = getchar();\n");
 			break;
-		case NILIFY:
-			print_indent(*ident);
+		case '*':
 			fprintf(stdout, "*p = 0;\n");
 			break;
-		case COMMENT:
+		case ';':
 			break;
-		case BF_EXIT:
-			print_indent(*ident);
+		case '%':
 			fprintf(stdout, "exit((int)*p);\n");
 			break;
 		default: break;
 	}
 }
-
-int
-get_command_t ( char instruction )
-{
-	switch (instruction)
-	{
-		case '^': return MV_B;			// ^
-		case '>': return MV_R;			// >
-		case '<': return MV_L;			// <
-		case '[': return LOOP_S;		// [
-		case ']': return LOOP_E;		// ]
-		case '+': return INC;			// +
-		case '-': return DEC;			// -
-		case '.': return PUTOUT;		// .
-		case '&': return PUTERR;		// &
-		case ',': return READ;			// ,
-		case '*': return NILIFY;		// *
-		case ';': return COMMENT;		// ;
-		case '%': return BF_EXIT;		// %
-	}
-}
-
-
