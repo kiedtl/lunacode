@@ -140,7 +140,7 @@ print_command ( int count, char i )
 			fprintf(stdout, "putchar(*p);\n");
 			break;
 		case '&':
-			fprintf(stdout, "fprintf(stderr, \"%c\", *p);\n");
+			fprintf(stdout, "fprintf(stderr, \"%%c\", *p);\n");
 			break;
 		case ',':
 			fprintf(stdout, "*p = getchar();\n");
