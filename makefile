@@ -1,5 +1,15 @@
-CC	= gcc
-CFLAGS	= -ggdb -std=c99 -pedantic -O3
+#
+# urban: an optimizing Brainfsck compiler
+# (c) Kied Llaentenn
+# See the LICENSE for more information
+#
+
+# for those who lack clang/lld
+#CC	= gcc
+#CFLAGS	= -ggdb -std=c99 -pedantic -O3
+
+CC	= clang
+CFLAGS	= -g -std=c99 -pedantic -O3 -fuse-ld=lld
 
 SRC	= main.c
 OBJ	= $(SRC:.c=.o)
