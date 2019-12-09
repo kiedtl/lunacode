@@ -9,14 +9,15 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "emit.h"
 #include "opt2.h"
+#include "opt3.h"
 
 #define TRUE  1
 #define FALSE 0
 
 void usage ( void );
 void indent ( int *i, char c );
-void print_command ( int count, char i );
 
 int
 main ( int argc, char *argv[]  )
@@ -60,9 +61,8 @@ main ( int argc, char *argv[]  )
 	fclose(file);
 
 	// perform optimizations
-	fprintf(stderr, "before:\t\t%s\n", buffer);
 	buffer = opt2(buffer);
-	fprintf(stderr, "after:\t\t%s\n", buffer);
+	buffer = opt3(buffer);
 
 	// default C std
 	fprintf(stdout, "#include <stdio.h>\n#include <stdlib.h>\n\n");
@@ -143,50 +143,4 @@ void indent ( int *i, char c )
 	if (c == ']') --*i;
 	for (int c = 0; c < *i; c++) fprintf(stdout, "    ");
 	if (c == '[') ++*i;
-}
-
-void
-print_command ( int count, char i )
-{
-	switch (i)
-	{
-		case '^':
-			fprintf(stdout, "p = 0;\n");
-			break;
-		case '>':
-			fprintf(stdout, "p += %i;\n", count);
-			break;
-		case '<':
-			fprintf(stdout, "p -= %i;\n", count);
-			break;
-		case '[':
-			fprintf(stdout, "while (*p) {\n");
-			break;
-		case ']':
-			fprintf(stdout, "}\n");
-			break;
-		case '+':
-			fprintf(stdout, "(*p) += %i;\n", count);
-			break;
-		case '-':
-			fprintf(stdout, "(*p) -= %i;\n", count);
-			break;
-		case '.':
-			fprintf(stdout, "putchar(*p);\n");
-			break;
-		case '&':
-			fprintf(stdout, "fprintf(stderr, \"%%c\", *p);\n");
-			break;
-		case ',':
-			fprintf(stdout, "*p = readch();\n");
-			break;
-		case '*':
-			fprintf(stdout, "*p = 0;\n");
-			break;
-		case ';': break;
-		case '%':
-			fprintf(stdout, "exit((int)*p);\n");
-			break;
-		default: break;
-	}
 }

@@ -12,7 +12,7 @@ CC	= clang
 CFLAGS	= -g -std=c99 -pedantic -Os
 LDFLAGS	= -fuse-ld=lld
 
-SRC	= opt2.c main.c
+SRC	= opt2.c opt3.c emit.c main.c
 OBJ	= $(SRC:.c=.o)
 
 all: clean urban
