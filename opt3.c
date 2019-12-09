@@ -6,7 +6,7 @@
 #include <string.h>
 
 char*
-opt2 ( char *src )
+opt3 ( char *src )
 {
 	char *dest = (char*) malloc(sizeof(char) * strlen(src));
 	int d = 0;
