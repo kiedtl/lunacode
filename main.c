@@ -9,6 +9,11 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "opt2.h"
+
+#define TRUE  1
+#define FALSE 0
+
 void usage ( void );
 void indent ( int *i, char c );
 void print_command ( int count, char i );
@@ -16,6 +21,7 @@ void print_command ( int count, char i );
 int
 main ( int argc, char *argv[]  )
 {
+	// TODO: argument parsin
 	if (argc < 2) usage();
 
 	char *path = (char*) malloc(strlen(argv[1]) * sizeof(char));
@@ -46,13 +52,30 @@ main ( int argc, char *argv[]  )
 	flen = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	buffer = (char*) malloc(sizeof(char) * flen);
-	fread(buffer, sizeof(buffer), flen, file);
+	buffer = (char*) malloc(sizeof(char) * (flen + 1));
+	fread(buffer, 1, flen, file);
+	
+	// null-terminate the darned buffer
+	buffer[flen] = '\0';
 	fclose(file);
 
-	fprintf(stdout, "#include <stdio.h>\n#include <stdlib.h>\nint \nmain( void )\n{\n");
-	fprintf(stdout, "    char buf[30000] = {0};\n");
-	fprintf(stdout, "    char *p = buf;\n");
+	// perform optimizations
+	fprintf(stderr, "before:\t\t%s\n", buffer);
+	buffer = opt2(buffer);
+	fprintf(stderr, "after:\t\t%s\n", buffer);
+
+	// default C std
+	fprintf(stdout, "#include <stdio.h>\n#include <stdlib.h>\n\n");
+
+	// static read() function that returns 0 for EOF
+	fprintf(stdout, "int\nreadch ( void )\n{\n");
+	fprintf(stdout, "    int c = getchar();\n");
+	fprintf(stdout, "    return (c != EOF ? c : 0);\n}\n\n");
+
+	// main function
+	fprintf(stdout, "int\nmain ( void )\n{\n");
+	//fprintf(stdout, "    char buf[30000] = {0};\n");
+	fprintf(stdout, "    char *p = (char*) malloc(100000 * sizeof(char));;\n");
 
 	// iter over buffer, reading it into an array of Instructions
 	// alloc 1 instructions, realloc as needed
@@ -60,42 +83,45 @@ main ( int argc, char *argv[]  )
 	int i = 0;
 	int indentation = 1;
 	int buflen = strlen(buffer);
-	for (; i < buflen; i++)
+	while (i < buflen)
 	{
 		int ins_ctr = 1;
 
 		// comments
 		if (buffer[i] == ';')
 		{
-			--i;
-			if (buffer[i] != '\\') // escape for comments...
+			while (buffer[i] != '\n')
 			{
 				++i;
-				while (buffer[i] != '\n')
-				{
-					++i;
-				}
-				--i;
-				continue;
 			}
-			++i;
+			--i;
+			continue;
 		}
 
-		// compress multiple instructions into one
+		// TODO: move into it's own function
+		// compress multiple commands into one
 		if (buffer[i + 1] == buffer[i])
 		{
 			int origctr = i;
-			while (buffer[i] == buffer[origctr])
+			while (TRUE)
 			{
-				++i;
 				++ins_ctr;
+				++i;
+				if (buffer[i] != buffer[origctr]) {
+					i -= 2;
+					ins_ctr -= 2;
+					break;
+				}
+				else
+					continue;
 			}
-			--i;
+			
 		}
-
+	
 		// emit c code
 		indent(&indentation, buffer[i]);
 		print_command(ins_ctr, buffer[i]);
+		++i;
 	}
 
 	fprintf(stdout, "\n}\n");
@@ -140,10 +166,10 @@ print_command ( int count, char i )
 			fprintf(stdout, "}\n");
 			break;
 		case '+':
-			fprintf(stdout, "*p += %i;\n", count);
+			fprintf(stdout, "(*p) += %i;\n", count);
 			break;
 		case '-':
-			fprintf(stdout, "*p -= %i;\n", count);
+			fprintf(stdout, "(*p) -= %i;\n", count);
 			break;
 		case '.':
 			fprintf(stdout, "putchar(*p);\n");
@@ -152,7 +178,7 @@ print_command ( int count, char i )
 			fprintf(stdout, "fprintf(stderr, \"%%c\", *p);\n");
 			break;
 		case ',':
-			fprintf(stdout, "*p = getchar();\n");
+			fprintf(stdout, "*p = readch();\n");
 			break;
 		case '*':
 			fprintf(stdout, "*p = 0;\n");

@@ -6,13 +6,13 @@
 
 # for those who lack clang/lld
 #CC	= gcc
-#CFLAGS	= -ggdb -std=c99 -pedantic -O3
+#CFLAGS	= -ggdb -std=c99 -pedantic -Os
 
 CC	= clang
-CFLAGS	= -g -std=c99 -pedantic -O3
+CFLAGS	= -g -std=c99 -pedantic -Os
 LDFLAGS	= -fuse-ld=lld
 
-SRC	= main.c
+SRC	= opt2.c main.c
 OBJ	= $(SRC:.c=.o)
 
 all: clean urban

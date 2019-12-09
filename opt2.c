@@ -14,18 +14,14 @@ opt2 ( char *src )
 	int s = 0;
 	for (;src[s];)
 	{
-		if (src[s] == '[')
+		if (src[s] == '[' 
+				&& src[s + 1] == '-' 
+				&& src[s + 2] == ']')
 		{
-			char tmp1 = src[s + 1];
-			char tmp2 = src[s + 2];
-
-			if (tmp1 == '-' && tmp2 == ']')
-			{
-				dest[d] = '*';
-				s += 3;
-				++d;
-				continue;
-			}
+			dest[d] = '*';
+			s += 3;
+			++d;
+			continue;
 		}
 		else
 		{
