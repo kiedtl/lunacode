@@ -2,9 +2,10 @@
 // 	- fuse [-] into *
 // 	- misc loop optimizations
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "opt2.h"
 
 char*
 opt2 ( char *src )

@@ -1,6 +1,7 @@
 #ifndef EMIT_INCLUDED
 #define EMIT_INCLUDED
 
-void print_command ( int count, char i );
+void emit ( char *assm );
+char* assm2c ( char *in, int arg1, int arg2 );
 
 #endif

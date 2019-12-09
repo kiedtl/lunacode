@@ -12,6 +12,7 @@
 #include "emit.h"
 #include "opt2.h"
 #include "opt3.h"
+#include "assm.h"
 
 #define TRUE  1
 #define FALSE 0
@@ -57,10 +58,10 @@ main ( int argc, char *argv[]  )
 	fread(buffer, 1, flen, file);
 	
 	// null-terminate the darned buffer
-	buffer[flen] = '\0';
+	buffer[flen + 1] = '\0';
 	fclose(file);
 
-	// perform optimizations
+	// perform stage 2-3 optimizations
 	buffer = opt2(buffer);
 	buffer = opt3(buffer);
 
@@ -77,52 +78,8 @@ main ( int argc, char *argv[]  )
 	//fprintf(stdout, "    char buf[30000] = {0};\n");
 	fprintf(stdout, "    char *p = (char*) malloc(100000 * sizeof(char));;\n");
 
-	// iter over buffer, reading it into an array of Instructions
-	// alloc 1 instructions, realloc as needed
-	int ctr = 0;
-	int i = 0;
-	int indentation = 1;
-	int buflen = strlen(buffer);
-	while (i < buflen)
-	{
-		int ins_ctr = 1;
-
-		// comments
-		if (buffer[i] == ';')
-		{
-			while (buffer[i] != '\n')
-			{
-				++i;
-			}
-			--i;
-			continue;
-		}
-
-		// TODO: move into it's own function
-		// compress multiple commands into one
-		if (buffer[i + 1] == buffer[i])
-		{
-			int origctr = i;
-			while (TRUE)
-			{
-				++ins_ctr;
-				++i;
-				if (buffer[i] != buffer[origctr]) {
-					i -= 2;
-					ins_ctr -= 2;
-					break;
-				}
-				else
-					continue;
-			}
-			
-		}
-	
-		// emit c code
-		indent(&indentation, buffer[i]);
-		print_command(ins_ctr, buffer[i]);
-		++i;
-	}
+	char *assm = b2asm(buffer);
+	emit(assm);
 
 	fprintf(stdout, "\n}\n");
 

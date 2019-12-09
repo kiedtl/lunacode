@@ -8,14 +8,17 @@
 #CC	= gcc
 #CFLAGS	= -ggdb -std=c99 -pedantic -Os
 
+WARNING	= -Wall -Wextra -pedantic -Wmissing-prototypes \
+	  -Wold-style-definition -Werror
+
 CC	= clang
-CFLAGS	= -g -std=c99 -pedantic -Os
+CFLAGS	= -g -std=c99 -O3 $(WARNING)
 LDFLAGS	= -fuse-ld=lld
 
-SRC	= opt2.c opt3.c emit.c main.c
+SRC	= opt2.c opt3.c assm.c emit.c main.c
 OBJ	= $(SRC:.c=.o)
 
-all: clean urban
+all: urban
 
 clean:
 	rm -f urban $(OBJ)

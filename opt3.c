@@ -1,9 +1,10 @@
 // Stage 3 optimizations:
 // 	- fuse [<]/[>] into {/}
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "opt3.h"
 
 char*
 opt3 ( char *src )
