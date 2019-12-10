@@ -5,62 +5,24 @@
 #include <string.h>
 #include <stdlib.h>
 #include "emit.h"
+#include "inst.h"
 
 // parse the assembly and sent it to
 // assm2c() to do the actual converting
 // then print it out
 void
-emit ( char *assm )
+emit ( struct Instruction *ins )
 {
-	int i = 0;
-	int len = strlen(assm);
-	while (i < len && assm[i] != '\n')
+	int x = 0;
+	while (ins[x].command != NULL)
 	{
-		int c = 0;
-		char *comm = malloc(7);
-		int arg1, arg2 = 0;
-
-		char arg1s[9];
-		char arg2s[9];
-
-		// null-terminate the strings!
-		comm[6] = '\0';
-		arg1s[8] = '\0';
-		arg2s[8] = '\0';
-
-		// command
-		while (assm[i] != ' ')
-		{
-			comm[c] = assm[i];
-			++c;
-			++i;
-		}
-		++i;
-		c = 0;
-
-		// args
-		while (assm[i] != ' ')
-		{
-			arg1s[c] = assm[i];
-			++i;
-			++c;
-		}
-		arg1 = atoi(arg1s);
-		c = 0;
-		++i;
-
-		while (assm[i] != ' ')
-		{
-			arg2s[c] = assm[i];
-			++i;
-			++c;
-		}
-	
-		char *res = assm2c(comm, arg1, arg2);	
+		fprintf(stderr, "%s %i %i\n", ins[x].command, ins[x].arg1, ins[x].arg2);
+		char *res = assm2c(ins[x].command,
+				ins[x].arg1,
+				ins[x].arg2);	
 		fprintf(stdout, "%s", res);
-		if (res) free(res);
-		if (comm) free(comm);
-		++i;
+		free(res);
+		++x;
 	}
 }
 
@@ -115,5 +77,5 @@ assm2c ( char *in, int arg1, int arg2 )
 		return "}\n";
 	if (strcmp(in, "cpyval"))
 		fprintf(stderr, "not implemented %i\n", arg2);
-	return "";
+	return "unknown";
 }

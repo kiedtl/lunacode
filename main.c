@@ -9,6 +9,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "inst.h"
 #include "emit.h"
 #include "opt2.h"
 #include "opt3.h"
@@ -75,11 +76,9 @@ main ( int argc, char *argv[]  )
 
 	// main function
 	fprintf(stdout, "int\nmain ( void )\n{\n");
-	//fprintf(stdout, "    char buf[30000] = {0};\n");
 	fprintf(stdout, "    char *p = (char*) malloc(100000 * sizeof(char));;\n");
 
-	char *assm = b2asm(buffer);
-	emit(assm);
+	emit(b2asm(buffer));
 
 	fprintf(stdout, "\n}\n");
 

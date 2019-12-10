@@ -7,13 +7,13 @@
 
 #define TRUE 1
 
-char*
+struct Instruction*
 b2asm ( char *bf )
 {
-	// realloc as needed
-	char *dest = malloc(1);
+	struct Instruction *ins = malloc(strlen(bf) + 1);
 
-	int i = 0;
+	int i = 0; // bf counter
+	int x = 0; // ins counter
 	int bflen = strlen(bf);
 	while (i < bflen)
 	{
@@ -44,18 +44,10 @@ b2asm ( char *bf )
 					))
 		{
 			int origctr = i;
-			while (TRUE)
+			while (bf[i] != bf[origctr])
 			{
 				++arg1;
 				++i;
-				if (bf[i] != bf[origctr])
-				{
-					i -= 2;
-					arg1 -= 2;
-					break;
-				}
-				else
-					continue;
 			}
 		}
 
@@ -64,24 +56,22 @@ b2asm ( char *bf )
 		// TODO: stage 5-6 opts
 
 		// append to dest as command
-		char arg1s[(int)(ceil(log10(arg1)) + 1)];
-		char arg2s[(int)(ceil(log10(arg2)) + 1)];
+		//realloc(dest, (strlen(dest) + strlen(command)
+		//			+ strlen((const char*)&arg1s)
+		//			+ strlen((const char*)&arg2s)
+		//			+ 3));
 
-		sprintf(arg1s, "%i", (int)arg1s);
-		sprintf(arg2s, "%i", (int)arg2s);
+		ins[x].command = malloc(strlen(command) + 1);
+		ins[x].command[strlen(command) + 1] = '\0';
+		strcpy(ins[x].command, command);
+		ins[x].arg1 = arg1;
+		ins[x].arg2 = arg2;
 
-		realloc(dest, (strlen(dest) + strlen(command)
-					+ strlen((const char*)&arg1s)
-					+ strlen((const char*)&arg2s)
-					+ 3));
-		strcat(dest, command);
-		strcat(dest, " ");
-		strcat(dest, (const char*)&arg1s);
-		strcat(dest, " ");
-		strcat(dest, (const char*)&arg2s);
-		strcat(dest, "\n");
+		++i;
+		++x;
 	}
-	return dest;
+	ins[strlen(bf) + 1].command = NULL;
+	return ins;
 }
 
 char*
