@@ -67,7 +67,9 @@ main ( int argc, char *argv[]  )
 	buffer = opt3(buffer);
 
 	// default C std
-	fprintf(stdout, "#include <stdio.h>\n#include <stdlib.h>\n\n");
+	fprintf(stdout, "#define _GNU_SOURCE\n");
+	fprintf(stdout, "#include <stdio.h>\n#include <stdlib.h>\n");
+	fprintf(stdout, "#include <string.h>\n\n");
 
 	// static read() function that returns 0 for EOF
 	fprintf(stdout, "int\nreadch ( void )\n{\n");
@@ -76,9 +78,12 @@ main ( int argc, char *argv[]  )
 
 	// main function
 	fprintf(stdout, "int\nmain ( void )\n{\n");
-	fprintf(stdout, "    char *p = (char*) malloc(100000 * sizeof(char));;\n");
+	fprintf(stdout, "    char *mem = (char*) malloc(100000 * sizeof(char));\n");
+	fprintf(stdout, "    long p = 0;\n");
 
-	emit(b2asm(buffer));
+	int ilen = 0;
+	Instruction *ins = b2asm(buffer, &ilen);
+	emit(ins, ilen);
 
 	fprintf(stdout, "\n}\n");
 
@@ -92,11 +97,4 @@ usage ( void )
 {
 	fprintf(stderr, "usage: urban [file]\n");
 	exit(1);
-}
-
-void indent ( int *i, char c )
-{
-	if (c == ']') --*i;
-	for (int c = 0; c < *i; c++) fprintf(stdout, "    ");
-	if (c == '[') ++*i;
 }
