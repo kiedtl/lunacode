@@ -25,7 +25,7 @@ int
 main ( int argc, char *argv[]  )
 {
 	// TODO: argument parsin
-	if (argc < 2) usage();
+	//if (argc < 2) usage();
 
 	char *path = (char*) malloc(strlen(argv[1]) * sizeof(char));
 	strcpy(path, argv[1]);

@@ -1,5 +1,7 @@
 .vscode/
 
+test
+h.c
 **/.*.swp
 *.o
 urban
