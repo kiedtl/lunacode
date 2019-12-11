@@ -14,53 +14,67 @@
 #include "opt2.h"
 #include "opt3.h"
 #include "assm.h"
+#include "args.h"
 
-#define TRUE  1
-#define FALSE 0
+#define VERSION "0.2.0"
+#define MAX_BUFLEN 10000000
 
 void usage ( void );
-void indent ( int *i, char c );
+void version ( void );
+
+// global options
+struct Options *opts;
+char *argv0;
 
 int
 main ( int argc, char *argv[]  )
 {
-	// TODO: argument parsin
-	//if (argc < 2) usage();
+	argv0 = argv[0];
 
-	char *path = (char*) malloc(strlen(argv[1]) * sizeof(char));
-	strcpy(path, argv[1]);
+	// default options
+	opts = (struct Options*) calloc(1, sizeof(struct Options*));
+	opts->perf_opt1 = FALSE;
+	opts->perf_opt2 = FALSE;
+	opts->perf_opt3 = FALSE;
 
-	// check if file exists
-	struct stat stats;
-	if (stat(path, &stats) != 0)
-	{
-		fprintf(stderr, "urban: cannot stat %s: ", path);
-		perror("stat()");
-		return 1;
+	// parse options (thanks to st dev team :)
+	ARGBEGIN {
+		case '1':
+			opts->perf_opt1 = TRUE;
+			break;
+		case '2':
+			opts->perf_opt2 = TRUE;
+			break;
+		case '3':
+			opts->perf_opt3 = TRUE;
+			break;
+		case 'v':
+			opts->verbose = TRUE;
+			break;
+		case 'V':
+			version();
+			break;
+		case 'h':
+		default:
+			usage();
+			break;
+	} ARGEND;
+
+	// print options if verbose
+	if (opts->verbose) {
+		fprintf(stderr, "OPTIONS:\n");
+		fprintf(stderr, "\topts->verbose\t%i\n", opts->verbose);
+		fprintf(stderr, "\topts->perf_opt1\t%i\n", opts->perf_opt1);
+		fprintf(stderr, "\topts->perf_opt2\t%i\n", opts->perf_opt2);
+		fprintf(stderr, "\topts->perf_opt3\t%i\n", opts->perf_opt3);
 	}
 
-	// read file into buffer
-	FILE *file = fopen(path, "r");
-	unsigned long flen = 0;
+	// read stdin to buffer
 	char *buffer;
-
-	if (file == NULL)
-	{
-		fprintf(stderr, "urban: cannot open %s: ", path);
-		perror("fopen()");
-		return 1;
-	}
-
-	fseek(file, 0, SEEK_END);
-	flen = ftell(file);
-	fseek(file, 0, SEEK_SET);
-
-	buffer = (char*) malloc(sizeof(char) * (flen + 1));
-	fread(buffer, 1, flen, file);
+	buffer = (char*) malloc(sizeof(char) * (MAX_BUFLEN));
 	
 	// null-terminate the darned buffer
-	buffer[flen + 1] = '\0';
-	fclose(file);
+	buffer[MAX_BUFLEN - 1] = '\0';
 
 	// perform stage 2-3 optimizations
 	buffer = opt2(buffer);
@@ -89,12 +103,24 @@ main ( int argc, char *argv[]  )
 
 	// cleanup
 	if (buffer) free(buffer);
-	free(path);
 }
 
 void
 usage ( void )
 {
-	fprintf(stderr, "usage: urban [file]\n");
+	fprintf(stderr, "%s %s\n(c) Kied Llaentenn\n\n", argv0, VERSION);
+	fprintf(stderr, "USAGE\n\turban < input.b > output.c\n");
+	fprintf(stderr, "\nOPTIONS\n");
+	fprintf(stderr, "\t-h\tshow this usage information.\n");
+	fprintf(stderr, "\t-V\tshow version and exit.\n");
+	fprintf(stderr, "\t-v\tenable verbose information.\n");
+	fprintf(stderr, "\t-[1-3]\tenable stage [1-3] optimizations.\n");
 	exit(1);
+}
+
+void
+version ( void )
+{
+	fprintf(stderr, "%s v%s\n", argv0, VERSION);
+	exit(0);
 }

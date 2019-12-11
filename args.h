@@ -16,6 +16,7 @@ typedef struct Options {
 	BOOL perf_opt1;	// perform stage-1 optimizations
 	BOOL perf_opt2;	// perform stage-2 opts
 	BOOL perf_opt3; // perform stage-3 opts
+	BOOL verbose;
 } Options;
 
 /* use main(int argc, char *argv[]) */
