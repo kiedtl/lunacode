@@ -77,8 +77,8 @@ main ( int argc, char *argv[]  )
 	buffer[MAX_BUFLEN - 1] = '\0';
 
 	// perform stage 2-3 optimizations
-	buffer = opt2(buffer);
-	buffer = opt3(buffer);
+	if (opts->perf_opt2) buffer = opt2(buffer);
+	if (opts->perf_opt3) buffer = opt3(buffer);
 
 	// default C std
 	fprintf(stdout, "#define _GNU_SOURCE\n");

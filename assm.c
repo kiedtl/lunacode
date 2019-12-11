@@ -41,19 +41,21 @@ b2asm ( char *bf, int *len )
 		}
 
 		// compress commands (stage 1 opts)
-		if (bf[i + 1] == bf[i]
-				&& (bf[i] == '+'
+		if (opts->perf_opt1) {
+			if (bf[i + 1] == bf[i]
+					&& (bf[i] == '+'
 					|| bf[i] == '-'
 					|| bf[i] == '<'
-					|| bf[i] == '>'
-					))
-		{
-			fprintf(stderr, "found dup\n");
-			int origctr = i;
-			while (bf[i] == bf[origctr] && bf[i])
+					|| bf[i] == '>')
+			)
 			{
-				++arg1;
-				++i;
+				fprintf(stderr, "found dup\n");
+				int origctr = i;
+				while (bf[i] == bf[origctr] && bf[i])
+				{
+					++arg1;
+					++i;
+				}
 			}
 		}
 
