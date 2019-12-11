@@ -1,5 +1,5 @@
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,19 +10,18 @@
 struct Instruction*
 b2asm ( char *bf )
 {
-	struct Instruction *ins = malloc(strlen(bf) + 1);
+	Instruction *ins = (Instruction*) malloc((strlen(bf) + 1) * sizeof(Instruction*));
 
 	int i = 0; // bf counter
 	int x = 0; // ins counter
 	int bflen = strlen(bf);
 	while (i < bflen)
 	{
-		// eq to <value> for compressable commands
+		// arg1: eq to <value> for compressable commands
 		// (+,-,<,>,), eq to <src> for `cpyval`
-		int arg1 = 0;
-
-		// eq to <dest> for cpyval command
-		int arg2 = 0;
+		// arg2: eq to <dest> for cpyval command
+		int arg1 = 1;
+		int arg2 = 1;
 
 		// ignore comments
 		if (bf[i] == ';')
@@ -61,9 +60,16 @@ b2asm ( char *bf )
 		//			+ strlen((const char*)&arg2s)
 		//			+ 3));
 
-		ins[x].command = malloc(strlen(command) + 1);
+		// command
+		ins[x].command = calloc(strlen(command) + 1, sizeof(char*));
 		ins[x].command[strlen(command) + 1] = '\0';
 		strcpy(ins[x].command, command);
+
+		fprintf(stderr, "iter: x = %i\tstrlen = %i\n", x, bflen);	
+		// instruction arguments
+		ins[x].arg1 = *(int*) malloc(1 * sizeof(int));
+		ins[x].arg2 = *(int*) malloc(1 * sizeof(int));
+
 		ins[x].arg1 = arg1;
 		ins[x].arg2 = arg2;
 

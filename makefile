@@ -23,7 +23,12 @@ all: urban
 clean:
 	rm -f urban $(OBJ)
 
+.c.o:
+	@echo "\tCC\t\t$@"
+	@$(CC) $(CFLAGS) -c $<
+
 urban: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+	@echo "\tLD\t\turban"
+	@$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 .PHONY: all clean
