@@ -1,10 +1,16 @@
-/*
- * Copy me if you can.
- * by 20h
- *
- * Copied by kiedtl
- * on 2019-12-11 1516
- */
+//
+// Copy me if you can.
+// by 20h
+//
+// Copied by kiedtl
+// on 2019-12-11 1516
+//
+
+// This file is was proudly stol^Hborrowed
+// from the st project and is copyright all
+// st contributors. View the LICENSE at:
+// https://git.suckless.org/st/file/LICENSE.html
+
 
 #ifndef ARG_INCLUDED
 #define ARG_INCLUDED

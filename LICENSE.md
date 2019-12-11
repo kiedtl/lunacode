@@ -2,6 +2,11 @@
 
 > Copyright (c) 2019, Kiëd Llaentenn
 > All rights reserved.
+>
+> This License applies to all files in this project,
+> with the exception of args.h, which was stol^Hborrowed
+> from the st project on suckless.org. You may view the License
+> for args.h [here](https://git.suckless.org/st/file/LICENSE.html)
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
