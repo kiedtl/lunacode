@@ -17,7 +17,6 @@
 #include "args.h"
 
 #define VERSION "0.2.0"
-#define MAX_BUFLEN 10000000
 
 void usage ( void );
 void version ( void );
@@ -30,7 +29,7 @@ int
 main ( int argc, char *argv[]  )
 {
 	argv0 = argv[0];
-
+	
 	// default options
 	opts = (struct Options*) calloc(1, sizeof(struct Options*));
 	opts->perf_opt1 = FALSE;
@@ -70,11 +69,25 @@ main ( int argc, char *argv[]  )
 	}
 
 	// read stdin to buffer
-	char *buffer;
-	buffer = (char*) malloc(sizeof(char) * (MAX_BUFLEN));
-	
-	// null-terminate the darned buffer
-	buffer[MAX_BUFLEN - 1] = '\0';
+	FILE *fp = stdin;
+	size_t len = 0;
+	size_t size = 10000;
+	char *buffer = (char*) calloc(size, sizeof(char));
+	int ch;
+
+	while (EOF != (ch = fgetc(fp))) {
+		++len;
+		//buffer[len] = (char) ch;
+		char tmpbuf[] = { (char) ch, (char) 0 };
+		strncat(buffer, (const char *) tmpbuf, 1);
+		if (len == size) {
+			size += 10;
+		        buffer = (char*) realloc(buffer, size);
+		}
+	}
+
+	++len;
+	buffer[len] = (char) 0;
 
 	// perform stage 2-3 optimizations
 	if (opts->perf_opt2) buffer = opt2(buffer);

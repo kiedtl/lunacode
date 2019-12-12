@@ -4,8 +4,10 @@
 #include <string.h>
 
 #include "assm.h"
+#include "bool.h"
+#include "args.h"
 
-#define TRUE 1
+extern struct Options *opts;
 
 struct Instruction*
 b2asm ( char *bf, int *len )
