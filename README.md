@@ -3,6 +3,10 @@ An optimising Brainfsck transpiler with multiple extensions. It quickly
 translates Brainfsck source file into C code, which can then be compiled
 with GCC, TCC or (best) Clang.
 
+### status
+This still needs a lot of work. Thanks to an ill-planned refactoring, the code
+doesn't even work anymore :(
+
 ### spec
 - `EOF` is a 0
 - a newline is a linefeed (LF).

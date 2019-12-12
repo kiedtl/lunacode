@@ -12,8 +12,8 @@
 // https://git.suckless.org/st/file/LICENSE.html
 
 
-#ifndef ARG_INCLUDED
-#define ARG_INCLUDED
+#ifndef ARGS_INCLUDED
+#define ARGS_INCLUDED
 #include "bool.h"
 
 extern char *argv0;

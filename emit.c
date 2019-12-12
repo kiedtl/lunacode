@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include "emit.h"
 #include "inst.h"
+#include "args.h"
+#include "outp.h"
+
+extern struct Options *opts;
 
 // parse the assembly and sent it to
 // assm2c() to do the actual converting
@@ -15,14 +19,18 @@ emit ( struct Instruction *ins, int len )
 {
 	int x = 0;
 	int indent = 1;
+
+	if (opts->verbose)
+		fprintf(stderr, "\n----- EMIT -----\n");
+
 	while (ins[x].command != NULL && x < len )
 	{
-		//fprintf(stderr, "%s %i %i\n", ins[x].command, ins[x].arg1, ins[x].arg2);
-		if (ins[x].command[0] == 0)
-		{
-			++x;
-			continue;
-		}
+		// skip empty commands... sort of
+		//if (ins[x].command[0] == 0)
+		//{
+		//	++x;
+		//	continue;
+		//}
 
 		// print indentation
 		if (strcmp(ins[x].command, "exitlp") == 0)
@@ -37,6 +45,10 @@ emit ( struct Instruction *ins, int len )
 				ins[x].arg1,
 				ins[x].arg2);	
 		fprintf(stdout, "%s", res);
+
+		// print verbose information when called for		
+		VERBOSE("emit:\t%s %i %i\t%s", ins[x].command, ins[x].arg1, ins[x].arg2, res);
+
 		++x;
 	}
 }
@@ -92,5 +104,5 @@ assm2c ( char *in, int arg1, int arg2 )
 		return "}\n";
 	if (strcmp(in, "cpyval") == 0)
 		fprintf(stderr, "not implemented %i\n", arg2);
-	return "";
+	return "// unknown sequence\n";
 }

@@ -61,11 +61,11 @@ main ( int argc, char *argv[]  )
 
 	// print options if verbose
 	if (opts->verbose) {
-		fprintf(stderr, "OPTIONS:\n");
-		fprintf(stderr, "\topts->verbose\t%i\n", opts->verbose);
-		fprintf(stderr, "\topts->perf_opt1\t%i\n", opts->perf_opt1);
-		fprintf(stderr, "\topts->perf_opt2\t%i\n", opts->perf_opt2);
-		fprintf(stderr, "\topts->perf_opt3\t%i\n", opts->perf_opt3);
+		fprintf(stderr, "\n----- OPTIONS ------\n");
+		fprintf(stderr, "opts->verbose\t\t%i\n", opts->verbose);
+		fprintf(stderr, "opts->perf_opt1\t\t%i\n", opts->perf_opt1);
+		fprintf(stderr, "opts->perf_opt2\t\t%i\n", opts->perf_opt2);
+		fprintf(stderr, "opts->perf_opt3\t\t%i\n", opts->perf_opt3);
 	}
 
 	// read stdin to buffer

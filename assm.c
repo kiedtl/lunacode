@@ -6,6 +6,7 @@
 #include "assm.h"
 #include "bool.h"
 #include "args.h"
+#include "outp.h"
 
 extern struct Options *opts;
 
@@ -13,6 +14,9 @@ struct Instruction*
 b2asm ( char *bf, int *len )
 {
 	Instruction *ins = (Instruction*) malloc((strlen(bf) + 1) * sizeof(Instruction*));
+		
+	if (opts->verbose)
+		fprintf(stderr, "\n----- ASSEMBLY -----\n");
 
 	int i = 0; // bf counter
 	int x = 0; // ins counter
@@ -52,11 +56,13 @@ b2asm ( char *bf, int *len )
 			)
 			{
 				int origctr = i;
+				--arg1;
 				while (bf[i] == bf[origctr] && bf[i])
 				{
 					++arg1;
 					++i;
 				}
+				--i;
 			}
 		}
 
@@ -70,6 +76,8 @@ b2asm ( char *bf, int *len )
 		strcpy(ins[x].command, command);
 
 		// instruction arguments
+		VERBOSE("assembly:\t%s %i %i\t\n", ins[x].command, ins[x].arg1, ins[x].arg2);
+
 		ins[x].arg1 = *(int*) calloc(1, sizeof(int));
 		ins[x].arg2 = *(int*) calloc(1, sizeof(int));
 
