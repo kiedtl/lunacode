@@ -49,12 +49,12 @@ assm2c ( char *in, int arg1, int arg2 )
 		return "p = 0;\n";
 	if (strcmp(in, "incptr") == 0) {
 		char *dest = malloc(15);
-		sprintf(dest, "p = p + %i;\n", arg1);
+		sprintf(dest, "p += %i;\n", arg1);
 		return dest;
 	}
 	if (strcmp(in, "decptr") == 0) {
 		char *dest = malloc(15);	
-		sprintf(dest, "p = p - %i;\n", arg1);
+		sprintf(dest, "p += %i;\n", arg1);
 		return dest;
 	}
 	if (strcmp(in, "startl") == 0)
@@ -63,27 +63,27 @@ assm2c ( char *in, int arg1, int arg2 )
 		return "}\n";
 	if (strcmp(in, "incval") == 0) {
 		char *dest = malloc(15);
-		sprintf(dest, "mem[p] = mem[p] + %i;\n", arg1);
+		sprintf(dest, "mem[p] += %i;\n", arg1);
 		return dest;
 	}
 	if (strcmp(in, "decval") == 0) {
 		char *dest = malloc(15);
-		sprintf(dest, "mem[p] = mem[p] - %i;\n", arg1);
+		sprintf(dest, "mem[p] -=  %i;\n", arg1);
 		return dest;
 	}
 	if (strcmp(in, "putout") == 0)
 		return "putchar(mem[p]);\n";
 	if (strcmp(in, "puterr") == 0)
-		return "fprintf(stderr, \"%c\", *p);\n";
+		return "fprintf(stderr, \"%c\", mem[p]);\n";
 	if (strcmp(in, "getval") == 0)
 		return "mem[p] = readch();\n";
 	if (strcmp(in, "delval") == 0)
 		return "mem[p] = 0;\n";
 	// scan (eq of `[<]` or of `[>]`)
 	if (strcmp(in, "scanlt") == 0)
-		return "p = p - (long)((void*) (*mem + p) - memrchr(*mem, 0, p + 1));\n";
+		return "p -= (long)((void*) (*mem + p) - memrchr(*mem, 0, p + 1));\n";
 	if (strcmp(in, "scanrt") == 0)
-		return "p = p + (long)(memchr(*mem + p, 0, sizeof(*mem)) - (void*)(*mem + p));\n";
+		return "p += (long)(memchr(*mem + p, 0, sizeof(*mem)) - (void*)(*mem + p));\n";
 	if (strcmp(in, "endapp") == 0)
 		return "exit((int)mem[p]);\n";
 	if (strcmp(in, "startc") == 0)
