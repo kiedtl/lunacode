@@ -51,7 +51,6 @@ b2asm ( char *bf, int *len )
 					|| bf[i] == '>')
 			)
 			{
-				fprintf(stderr, "found dup\n");
 				int origctr = i;
 				while (bf[i] == bf[origctr] && bf[i])
 				{
